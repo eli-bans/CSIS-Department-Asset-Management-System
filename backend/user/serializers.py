@@ -1,5 +1,4 @@
 # users/serializers.py
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -14,9 +13,17 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data.get('password')
         )
         return user
+
+    def validate_email(self, value):
+        if not value.endswith('@ashesi.edu.gh'):
+            raise serializers.ValidationError('Only @ashesi.edu.gh emails are allowed.')
+        return value
+
+class MagicLinkSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
     def validate_email(self, value):
         if not value.endswith('@ashesi.edu.gh'):
